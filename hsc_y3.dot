@@ -1,0 +1,117 @@
+
+/*
+dot -Tpdf -o graph.pdf graph.dot
+*/
+
+digraph HSCY3FlowChart {
+    // IMPORTANT: Keep newrank=true
+    newrank=true;  // true, so clusters and rank can be set without overriding
+    compound=true;  // true, so we can treat images and labels as a single node
+	splines=true;  // true or ortho are the two decent options
+    graph [rankdir=LR, concentrate=false];
+    node [shape=box]
+
+    /* Subgraph for the legend */
+    subgraph cluster_bottom {
+        graph [rankdir=LR]
+        node [color=invis]
+        b1 [label="Data", color=black, shape=cylinder, rank=souce]
+        b2 [label="Simulations", color=cyan, shape=parallelogram]
+        b3 [label="Intermediate data products", color=orange, shape=box]
+        b4 [label="Data vectors", color=purple, style=rounded, shape=box]
+        b5 [label="Modeling choices", color=red, shape=oval]
+        b6 [label="Cosmological analysis", color=green, shape=note, rank=sink]
+        b1 -> b2 -> b3 -> b4 -> b5 -> b6 [color=invis]
+        color=invis
+    }
+
+	/* Main Entities */
+    subgraph main{
+    graph [rankdir=LR]
+
+    N0 [label="Raw Subaru images", color=black, shape=cylinder, rank=source]
+    subgraph cluster_1{
+        style=dotted;
+        I1 [label="", image="images/hsc_wide.jpg", imagescale=true, fixedsize=true, imagepos="tc", group=1, labelloc="b", width="1px", height="1px" shape=cylinder, color=invis]
+        N1 [label="Wide field grizy images", shape=cylinder]
+        color=gray
+    }
+	N2 [label="BOSS DR11", color=black, shape=cylinder]
+	N3 [label="Camira cluster catalog (Oguri+ 2018)", color="orange", shape=box]
+	N4 [label="Photo-z (Nishizawa+ in prep.)", color="orange", shape=box]
+	N5 [label="N(z) (Rau+ in prep.)", color="orange", shape=box]
+	N6 [label="Shape catalog (Li+ 2022)", color="orange", shape=box]
+	N7 [label="Image simulations (Mandelbaum+ 2018)", color=cyan, shape=parallelogram]
+	N8 [label="Ray-tracing simulations\n(Takahashi+ 2017)", color=cyan, shape=parallelogram]
+	N9 [label="PSF systematics model\n(Zhang+ in prep.)", color=red, shape=oval]
+	N10 [label="Mock shape catalog\nMock galaxy catalog\n(Shiraski+ 2019)", color=cyan, shape=parallelogram]
+	N11 [label="Covariances", color=purple, style=rounded, shape=box]
+    V11 [label="", shape=point, color=invis]
+	N12 [label="N(z) uncertainty model\n(Zhang+ in prep.)", color=red, shape=oval]
+    subgraph cluster_tx2 {
+        label="3x2pt measurement (More+ in prep.)";
+        node [color=purple]
+        N17 [label="Galaxy-galaxy lensing"]
+        N18 [label="Galaxy clustering"]
+    	N13 [label="𝜉_(+/−) (1z bin)"]
+    }
+	N14 [label="𝜉_(+/−) (4z bins)", color=purple, style=rounded, shape=box]
+	N15 [label="𝐶_ℓ (4z bins)", color=purple, style=rounded, shape=box]
+    N16 [label="Cosmic shear", color=purple, style=rounded, shape=box]
+
+    subgraph cluster_cosmology {
+        node [color=green, shape=note]
+        N19 [label="Large-scale 3x2pt (Sugiyama+ in prep)"]
+        N20 [label="Small-scale 3x2pt (Miyatake+ in prep)"]
+        N21 [label="Real-space cosmic shear (Li+ in prep)"]
+        N22 [label="Fourier space cosmic shear (Dalal+ in prep.)"]
+        color=invis
+    }
+
+	/* Relationships */
+    N0 -> N1 [xlabel="LSST Pipelines", lhead=cluster_1]
+    N1 -> N3; N1 -> N4; N1 -> N6; N1 -> N10
+    N8 -> N10
+    N7 -> N6
+    N3 -> N5 //[constraint=false]
+    N10 -> N11
+    N11 -> V11 [arrowhead=none]
+    V11 -> N19; V11 -> N20; V11 -> N21; V11 -> N22;
+    N2 -> N17 //[constraint=false]
+    N2 -> N18 //[constraint=false]
+    N9 -> N21 //[constraint=false]
+    N9 -> N22 //[constraint=false]
+    N12 -> N21 //[constraint=false]
+    N12 -> N22 //[constraint=false]
+    N4 -> N17; N5 -> N17; N6 -> N17
+    N4 -> N16; N5 -> N16; N6 -> N16
+    N16 -> N13; N16 -> N14; N16 -> N15
+    N15 -> N22
+
+    /* Ranks */
+    // rankdir=TB]
+    //{rank=same; N1i N1}
+    {rank=source; a1 N0 N1}
+    {rank=same; N4 N5 N6}
+    // {rank=same; N3 N7}
+	{rank=same; N11 N12}
+	// {rank=same; N8 N9}}
+	// {rank=max; N13 N14}
+    //{rank=same; N9 N12 V11}
+    // {rank=same; N3 N8}
+	{rank=same; N14 N15}
+    //{rank=same; N16 N17 N18}
+    {rank=max; N19 N20 N21 N22 a3}
+
+    }
+
+    /* Subgraph to show abstract progression */
+    subgraph cluster_top{
+        graph [rankdir=LR]
+        a1 [label="Images", rank=source]
+        a2 [label="Meas"]
+        a3 [label="Cosmology", rank=max]
+        a1 -> a2 -> a3
+        color=invis
+    }
+}
